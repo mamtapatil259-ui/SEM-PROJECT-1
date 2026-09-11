@@ -1,22 +1,15 @@
-# Auto DataDash — 40% Project Monitoring Version
+# Automatic Data Visualization and Analytics System
 
-This folder contains the **40% milestone** of the project.
 
-## Included in this milestone
+This folder contains the detail of the project.
+
+## Included features
 1. Flask backend setup
 2. Dataset upload
 3. CSV / TSV / TXT / Excel / JSON loading
 4. Basic dataset summary
 5. KPI calculation
 6. Simple dashboard frontend
-
-## Pending for later milestones
-- Advanced data cleaning
-- Editable data explorer
-- Multiple graph visualizer
-- Automatic insights
-- Machine learning / K-Means
-- Download/export features
 
 ## Run
 ```bash
