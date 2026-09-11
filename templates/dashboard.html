@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto DataDash Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Dataset Dashboard</h1>
+   
+
+    <div class="card">
+      <h2 id="filename">Dataset</h2>
+      <div id="summary" class="grid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Key Performance Indicators</h2>
+      <div id="kpis" class="grid"></div>
+    </div>
+
+    <div class="card pending">
+      <h2>Next Phase</h2>
+      <p>Visualization</p>
+    </div>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      const summary = await fetch("/api/summary").then(r => r.json());
+      const kpis = await fetch("/api/kpis").then(r => r.json());
+
+      document.getElementById("summary").innerHTML =
+        Object.entries(summary).map(([k,v]) =>
+          `<div class="stat"><b>${k.replaceAll("_"," ")}</b><span>${v}</span></div>`
+        ).join("");
+
+      document.getElementById("kpis").innerHTML =
+        kpis.map(k =>
+          `<div class="stat"><b>${k.label}</b><span>${k.value}</span></div>`
+        ).join("");
+    }
+    loadDashboard();
+  </script>
+</body>
+</html>

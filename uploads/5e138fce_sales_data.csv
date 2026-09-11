@@ -1,0 +1,16 @@
+Order_ID,Order_Date,Customer_Name,City,Region,Category,Product_Name,Quantity,Unit_Price,Discount,Payment_Method,Profit
+ORD-1001,2026-01-05,Rahul Sharma,Mumbai,West,Electronics,Wireless Mouse,2,450,0.05,UPI,180
+ORD-1002,2026-01-07,Priya Verma,Delhi,North,Furniture,Ergonomic Chair,1,6500,0.10,Credit Card,1200
+ORD-1003,2026-01-10,Amit Patel,Ahmedabad,West,electronics,USB-C Cable,5,200,0.00,Net Banking,250
+ORD-1004,2026-01-12,Sneha Nair,Bangalore,South,Office Supplies,A4 Paper Rim,4,280,0.05,UPI,90
+ORD-1005,2026-01-15,Vikram Singh,Jaipur,North,Electronics,Bluetooth Speaker,1,2200,0.15,COD,-150
+ORD-1006,2026-01-18,Neha Gupta,Kolkata,East,Furniture,Study Desk,2,4800,0.08,Credit Card,1100
+ORD-1007,2026-01-20,Rohit Roy,Pune,West,Office Supplies,Gel Pen Pack,10,120,0.00,UPI,320
+ORD-1008,2026-01-22,Ananya Das,Guwahati,East,Electronics,Wireless Mouse,3,450,0.10,COD,210
+ORD-1009,2026-01-25,Kunal Shah,Mumbai,West,Furniture,Ergonomic Chair,1,6500,0.05,Credit Card,1350
+ORD-1010,2026-01-28,Pooja Mehta,Lucknow,North,Office Supplies,Desk Organizer,2,600,0.00,UPI,280
+ORD-1011,2026-02-02,Rahul Sharma,Mumbai,West,Electronics,Gaming Keyboard,1,3200,0.12,UPI,600
+ORD-1012,2026-02-05,Simran Kaur,Chandigarh,North,Electronics,USB-C Cable,4,200,0.00,Credit Card,200
+ORD-1013,2026-02-08,Manoj Tiwari,Patna,East,Office Supplies,A4 Paper Rim,6,280,0.10,COD,-40
+ORD-1014,2026-02-11,Kavita Joshi,Bangalore,South,Furniture,Monitor Stand,2,1400,0.05,Net Banking,420
+ORD-1015,2026-02-15,Arjun Reddy,Hyderabad,South,Electronics,Bluetooth Speaker,2,2200,0.20,UPI,300

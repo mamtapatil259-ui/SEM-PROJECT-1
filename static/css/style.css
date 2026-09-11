@@ -1,0 +1,60 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  margin: 0;
+  padding: 30px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1 {
+  margin-bottom: 5px;
+}
+
+.milestone {
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  margin: 18px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+}
+
+button {
+  padding: 10px 18px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.stat {
+  background: #eef3f9;
+  padding: 18px;
+  border-radius: 8px;
+}
+
+.stat b {
+  display: block;
+  text-transform: capitalize;
+  margin-bottom: 8px;
+}
+
+.stat span {
+  font-size: 22px;
+}
+
+.pending {
+  border-left: 5px solid #999;
+}

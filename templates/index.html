@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto DataDash - 40% Milestone</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Automatic  Data Visualization and Analytics System</h1>
+   
+
+    <div class="card">
+      <h2>Dataset Upload</h2>
+      <p>Upload CSV, Excel or JSON data to start the dashboard.</p>
+      <input id="fileInput" type="file"
+             accept=".csv,.tsv,.txt,.xlsx,.xls,.json,.jsonl">
+      <button onclick="uploadFile()">Upload Dataset</button>
+      <p id="status"></p>
+    </div>
+
+    
+  </div>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
