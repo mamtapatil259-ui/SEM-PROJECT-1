@@ -1,4 +1,10 @@
-Flask
-pandas
-numpy
-openpyxl
+Flask>=3.0
+pandas>=2.0
+numpy>=1.26
+plotly>=5.20
+scikit-learn>=1.4
+openpyxl>=3.1
+xlrd>=2.0
+Werkzeug>=3.0
+pyarrow>=16.0
+lxml>=5.0
