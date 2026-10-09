@@ -1,0 +1,7 @@
+{
+  "name": "Auto DataDash",
+  "description": "Interactive data visualization studio and automated dashboard creator for Excel (.xlsx), CSV, JSON, and TSV datasets with instant analytics and custom chart builder.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

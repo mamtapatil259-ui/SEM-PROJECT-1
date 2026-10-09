@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto DataDash - Analytics Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SheetJS CDN for reading Excel files directly in browser -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Navigation Header -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl">
+          D
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-tight">Auto <span class="text-indigo-400">DataDash</span></h1>
+          <p class="text-xs text-slate-400">Spreadsheet Analytics Studio & Chart Builder</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-3">
+        <select id="datasetSelector" onchange="loadPreset(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500">
+          <option value="ecommerce">Global E-Commerce Sales</option>
+          <option value="stocks">Tech Stock Performance</option>
+          <option value="climate">Global Climate Indicators</option>
+          <option value="workforce">HR Workforce Analytics</option>
+        </select>
+        <label class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition">
+          Upload File (.xlsx / .csv)
+          <input type="file" id="fileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)" />
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <!-- Top Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kpiContainer">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- Chart Visualizations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-bold text-slate-200" id="chart1Title">Category Breakdown</h2>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-950/80 text-indigo-400 border border-indigo-800/60 font-medium">Bar Graph</span>
+        </div>
+        <div class="relative h-72">
+          <canvas id="chart1"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-bold text-slate-200" id="chart2Title">Metric Distribution</h2>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 font-medium">Line / Donut</span>
+        </div>
+        <div class="relative h-72">
+          <canvas id="chart2"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table Explorer -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-base font-bold text-white">Raw Dataset Explorer</h2>
+          <p class="text-xs text-slate-400" id="tableSubtitle">Showing data records</p>
+        </div>
+        <div class="flex items-center space-x-3 w-full sm:w-auto">
+          <input
+            type="text"
+            id="tableSearch"
+            placeholder="Search within records..."
+            oninput="renderTable()"
+            class="bg-slate-800 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg w-full sm:w-64 focus:outline-none focus:border-indigo-500"
+          />
+          <button onclick="downloadCSV()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg whitespace-nowrap">
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-96 border border-slate-800 rounded-xl">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-950 text-slate-400 sticky top-0" id="tableHead"></thead>
+          <tbody class="divide-y divide-slate-800 text-slate-300" id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Sample Datasets
+    const datasets = {
+      ecommerce: {
+        name: "Global E-Commerce Sales",
+        rows: [
+          { OrderID: "1001", Category: "Electronics", Region: "North America", Revenue: 4200, Profit: 1250, Units: 24, Rating: 4.8 },
+          { OrderID: "1002", Category: "Fashion", Region: "Europe", Revenue: 1850, Profit: 620, Units: 45, Rating: 4.2 },
+          { OrderID: "1003", Category: "Home & Garden", Region: "Asia-Pacific", Revenue: 3100, Profit: 890, Units: 32, Rating: 4.5 },
+          { OrderID: "1004", Category: "Electronics", Region: "Europe", Revenue: 5400, Profit: 1600, Units: 38, Rating: 4.9 },
+          { OrderID: "1005", Category: "Sports", Region: "North America", Revenue: 2200, Profit: 710, Units: 29, Rating: 4.3 },
+          { OrderID: "1006", Category: "Fashion", Region: "Asia-Pacific", Revenue: 2900, Profit: 980, Units: 60, Rating: 4.6 },
+          { OrderID: "1007", Category: "Books", Region: "Latin America", Revenue: 950, Profit: 320, Units: 55, Rating: 4.4 },
+          { OrderID: "1008", Category: "Beauty", Region: "Europe", Revenue: 1650, Profit: 540, Units: 41, Rating: 4.7 }
+        ]
+      },
+      stocks: {
+        name: "Tech Stock Performance",
+        rows: [
+          { Ticker: "NVDA", Sector: "Semiconductors", PriceUSD: 128.5, DailyChangePct: 4.2, MarketCapB: 3150, PERatio: 48.5 },
+          { Ticker: "AAPL", Sector: "Consumer Tech", PriceUSD: 225.4, DailyChangePct: 1.1, MarketCapB: 3420, PERatio: 33.2 },
+          { Ticker: "MSFT", Sector: "Software", PriceUSD: 445.8, DailyChangePct: 1.8, MarketCapB: 3310, PERatio: 36.4 },
+          { Ticker: "GOOGL", Sector: "Internet", PriceUSD: 182.2, DailyChangePct: 2.3, MarketCapB: 2280, PERatio: 25.1 },
+          { Ticker: "AMZN", Sector: "E-Commerce", PriceUSD: 195.6, DailyChangePct: 1.5, MarketCapB: 2040, PERatio: 41.0 },
+          { Ticker: "META", Sector: "Social Media", PriceUSD: 502.1, DailyChangePct: 3.1, MarketCapB: 1280, PERatio: 28.3 }
+        ]
+      },
+      climate: {
+        name: "Global Climate Indicators",
+        rows: [
+          { City: "Tokyo", Country: "Japan", AvgTempC: 16.2, RainfallMM: 1528, SunshineHours: 1876, AirQuality: 42 },
+          { City: "London", Country: "UK", AvgTempC: 11.5, RainfallMM: 615, SunshineHours: 1633, AirQuality: 48 },
+          { City: "New York", Country: "USA", AvgTempC: 13.1, RainfallMM: 1260, SunshineHours: 2680, AirQuality: 55 },
+          { City: "Sydney", Country: "Australia", AvgTempC: 18.8, RainfallMM: 1213, SunshineHours: 2592, AirQuality: 28 },
+          { City: "Singapore", Country: "Singapore", AvgTempC: 27.8, RainfallMM: 2340, SunshineHours: 2022, AirQuality: 35 },
+          { City: "Stockholm", Country: "Sweden", AvgTempC: 7.9, RainfallMM: 539, SunshineHours: 1821, AirQuality: 18 }
+        ]
+      },
+      workforce: {
+        name: "HR Workforce Analytics",
+        rows: [
+          { Department: "Engineering", Headcount: 240, AvgSalaryUSD: 145000, RemotePct: 78, Engagement: 84 },
+          { Department: "Product", Headcount: 65, AvgSalaryUSD: 138000, RemotePct: 82, Engagement: 88 },
+          { Department: "Sales", Headcount: 180, AvgSalaryUSD: 112000, RemotePct: 65, Engagement: 81 },
+          { Department: "Marketing", Headcount: 85, AvgSalaryUSD: 98000, RemotePct: 75, Engagement: 83 },
+          { Department: "Customer Support", Headcount: 150, AvgSalaryUSD: 68000, RemotePct: 90, Engagement: 79 },
+          { Department: "Finance", Headcount: 45, AvgSalaryUSD: 125000, RemotePct: 60, Engagement: 86 }
+        ]
+      }
+    };
+
+    let activeData = datasets.ecommerce.rows;
+    let chart1Instance = null;
+    let chart2Instance = null;
+
+    function init() {
+      loadPreset("ecommerce");
+    }
+
+    function loadPreset(key) {
+      activeData = datasets[key].rows;
+      renderAll();
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet);
+        if (json && json.length > 0) {
+          activeData = json;
+          renderAll();
+        } else {
+          alert("Uploaded file does not contain valid data rows.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function renderAll() {
+      renderKPIs();
+      renderCharts();
+      renderTable();
+    }
+
+    function renderKPIs() {
+      const container = document.getElementById("kpiContainer");
+      if (!activeData || activeData.length === 0) return;
+
+      const keys = Object.keys(activeData[0]);
+      const numericKeys = keys.filter(k => typeof activeData[0][k] === "number");
+
+      let cards = `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <p class="text-xs font-semibold text-slate-400">Total Rows</p>
+          <p class="text-2xl font-extrabold text-white mt-1">${activeData.length}</p>
+          <p class="text-[11px] text-indigo-400 mt-1">Data records loaded</p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+          <p class="text-xs font-semibold text-slate-400">Total Columns</p>
+          <p class="text-2xl font-extrabold text-white mt-1">${keys.length}</p>
+          <p class="text-[11px] text-emerald-400 mt-1">${numericKeys.length} numeric dimensions</p>
+        </div>
+      `;
+
+      if (numericKeys.length > 0) {
+        const primaryMetric = numericKeys[0];
+        const sum = activeData.reduce((acc, r) => acc + (Number(r[primaryMetric]) || 0), 0);
+        cards += `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+            <p class="text-xs font-semibold text-slate-400">Total ${primaryMetric}</p>
+            <p class="text-2xl font-extrabold text-white mt-1">${sum.toLocaleString()}</p>
+            <p class="text-[11px] text-blue-400 mt-1">Aggregated sum</p>
+          </div>
+        `;
+      }
+
+      if (numericKeys.length > 1) {
+        const secMetric = numericKeys[1];
+        const avg = activeData.reduce((acc, r) => acc + (Number(r[secMetric]) || 0), 0) / activeData.length;
+        cards += `
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-5">
+            <p class="text-xs font-semibold text-slate-400">Average ${secMetric}</p>
+            <p class="text-2xl font-extrabold text-white mt-1">${avg.toFixed(1)}</p>
+            <p class="text-[11px] text-purple-400 mt-1">Mean value</p>
+          </div>
+        `;
+      }
+
+      container.innerHTML = cards;
+    }
+
+    function renderCharts() {
+      if (!activeData || activeData.length === 0) return;
+      const keys = Object.keys(activeData[0]);
+      const stringKeys = keys.filter(k => typeof activeData[0][k] === "string");
+      const numericKeys = keys.filter(k => typeof activeData[0][k] === "number");
+
+      const labelKey = stringKeys[0] || keys[0];
+      const valKey1 = numericKeys[0] || keys[1];
+      const valKey2 = numericKeys[1] || numericKeys[0] || keys[0];
+
+      document.getElementById("chart1Title").innerText = `${valKey1} by ${labelKey}`;
+      document.getElementById("chart2Title").innerText = `${valKey2} Distribution`;
+
+      const labels = activeData.slice(0, 10).map(r => r[labelKey]);
+      const data1 = activeData.slice(0, 10).map(r => r[valKey1]);
+      const data2 = activeData.slice(0, 10).map(r => r[valKey2]);
+
+      // Chart 1: Bar
+      if (chart1Instance) chart1Instance.destroy();
+      const ctx1 = document.getElementById("chart1").getContext("2d");
+      chart1Instance = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: valKey1,
+            data: data1,
+            backgroundColor: '#6366f1',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      // Chart 2: Donut or Line
+      if (chart2Instance) chart2Instance.destroy();
+      const ctx2 = document.getElementById("chart2").getContext("2d");
+      chart2Instance = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: labels.slice(0, 6),
+          datasets: [{
+            data: data2.slice(0, 6),
+            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: '#cbd5e1', boxWidth: 12 } }
+          }
+        }
+      });
+    }
+
+    function renderTable() {
+      const query = (document.getElementById("tableSearch").value || "").toLowerCase();
+      const filtered = activeData.filter(row => {
+        return Object.values(row).some(val => String(val).toLowerCase().includes(query));
+      });
+
+      document.getElementById("tableSubtitle").innerText = `Displaying ${filtered.length} of ${activeData.length} records`;
+
+      if (filtered.length === 0) {
+        document.getElementById("tableHead").innerHTML = "";
+        document.getElementById("tableBody").innerHTML = `<tr><td class="p-4 text-center text-slate-500">No matching records found</td></tr>`;
+        return;
+      }
+
+      const keys = Object.keys(filtered[0]);
+      let headHtml = "<tr>";
+      keys.forEach(k => {
+        headHtml += `<th class="p-3 font-semibold border-b border-slate-800">${k}</th>`;
+      });
+      headHtml += "</tr>";
+      document.getElementById("tableHead").innerHTML = headHtml;
+
+      let bodyHtml = "";
+      filtered.slice(0, 50).forEach(row => {
+        bodyHtml += "<tr class='hover:bg-slate-800/50 transition'>";
+        keys.forEach(k => {
+          bodyHtml += `<td class="p-3 border-b border-slate-800/60">${row[k] !== undefined ? row[k] : ""}</td>`;
+        });
+        bodyHtml += "</tr>";
+      });
+      document.getElementById("tableBody").innerHTML = bodyHtml;
+    }
+
+    function downloadCSV() {
+      if (!activeData || activeData.length === 0) return;
+      const keys = Object.keys(activeData[0]);
+      const header = keys.join(",");
+      const rows = activeData.map(r => keys.map(k => JSON.stringify(r[k] !== undefined ? r[k] : "")).join(","));
+      const csv = [header, ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data_export.csv";
+      a.click();
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
