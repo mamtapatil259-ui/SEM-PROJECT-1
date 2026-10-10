@@ -26,6 +26,53 @@ A full-stack Business Intelligence dashboard application built with a **Frontend
 
 ---
 
+## ⚡ VS Code & Windows PowerShell Quickstart (1-Click Run)
+
+### 🚀 Copy-Paste Master One-Liner (Inside VS Code Terminal: `Ctrl + ~`):
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\run.ps1
+```
+
+### ⌨️ Native VS Code Shortcuts:
+- **`Ctrl + Shift + B`** (Run Build Task): Automatically runs `run.ps1` in the integrated terminal, auto-checks Python, clears port collisions, launches the backend, and opens the dashboard!
+- **`F5`** (Debug): Select **Python: Auto DataDash Server (Port 5000)** to launch with full VS Code breakpoints and step debugging.
+- **VS Code Simple Browser**: Press `Ctrl + Shift + P` -> Type `Simple Browser: Show` -> Enter `http://localhost:5000` to view the full HTML/CSS dashboard right inside your VS Code window!
+
+---
+
+## 🪟 Advanced PowerShell Commands & Options
+
+You can pass custom parameters directly into `run.ps1`:
+
+```powershell
+# Default launch on port 5000
+.\run.ps1
+
+# Custom port (e.g. port 8080 or 5001)
+.\run.ps1 -Port 8080
+
+# Launch Flask backend instead of standard library
+.\run.ps1 -Mode flask
+
+# Launch Streamlit analytics dashboard (port 8501)
+.\run.ps1 -Mode streamlit -Port 8501
+
+# Headless mode (do not automatically open web browser)
+.\run.ps1 -NoBrowser
+
+# Force dependency reinstallation
+.\run.ps1 -ForceReinstall
+```
+
+### 🛠️ What `run.ps1` Does Automatically:
+1. **Self-Healing Python Detection**: Checks `python`, `py`, `python3`, detects Microsoft Store stub traps, and searches standard installation folders.
+2. **Auto-Install via Winget**: If Python is missing, offers silent automatic installation via `winget install Python.Python.3.11` and updates `$env:PATH` immediately without restarting VS Code.
+3. **Port Conflict Killer**: Detects if port 5000 is occupied by a lingering process and safely clears it before binding.
+4. **Virtual Environment Isolation**: Creates `.venv`, upgrades pip, and configures `.vscode/settings.json`.
+5. **Color-Coded Status Output**: Shows exact endpoints, health checks, and quick links.
+
+---
+
 ## 🚀 How to Run the Application
 
 ### Option 1: Run with Pure Python (Recommended)
